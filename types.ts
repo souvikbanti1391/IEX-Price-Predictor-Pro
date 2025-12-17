@@ -1,5 +1,5 @@
 export interface IEXDataPoint {
-    date: string; // Original string "DD-MM-YYYY"
+    date: string; 
     dateObj: Date;
     timeBlock: string;
     purchaseBid: number;
@@ -7,8 +7,6 @@ export interface IEXDataPoint {
     mcv: number;
     mcpMWh: number;
     mcpKWh: number;
-    
-    // Derived features
     hour: number;
     minute: number;
     dayOfWeek: number;
@@ -22,7 +20,7 @@ export interface ModelMetrics {
     mae: number;
     mape: number;
     r2: number;
-    directionalAccuracy: number; // Percentage 0-100
+    directionalAccuracy: number; 
 }
 
 export interface PredictionResult {
@@ -31,6 +29,14 @@ export interface PredictionResult {
     errors: number[];
     metrics: ModelMetrics;
     color: string;
+}
+
+export interface OptimizationStrategy {
+    optimalBuyWindows: {time: string, price: number}[];
+    peakShavingAlerts: {time: string, price: number}[];
+    averageForecastedPrice: number;
+    projectedSavingsPercent: number;
+    volatilityRisk: 'Low' | 'Moderate' | 'High';
 }
 
 export interface SimulationResult {
@@ -43,6 +49,7 @@ export interface SimulationResult {
         trend: number;
         dataLength: number;
     };
+    optimization?: OptimizationStrategy;
 }
 
 export interface FutureForecast {
