@@ -15,16 +15,23 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         return (
             <div className="bg-black/90 backdrop-blur-md text-white p-3 rounded-lg shadow-2xl border border-zinc-800 text-xs">
                 <p className="font-bold mb-2 text-zinc-400 border-b border-zinc-800 pb-1">{label}</p>
-                {payload.map((entry: any, index: number) => (
-                    <div key={index} className="flex items-center gap-2 mb-1">
-                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color || entry.stroke || entry.fill }} />
-                        <span className="text-zinc-300">{entry.name}:</span>
-                        <span className="font-mono font-bold text-white">
-                            {Number(entry.value).toFixed(entry.value > 100 ? 0 : 2)}
-                            {entry.unit}
-                        </span>
-                    </div>
-                ))}
+                {payload.map((entry: any, index: number) => {
+                    const value = typeof entry.value === 'number' ? entry.value : parseFloat(entry.value);
+                    const formattedValue = !isNaN(value) 
+                        ? value.toFixed(value > 100 ? 0 : 2) 
+                        : entry.value;
+
+                    return (
+                        <div key={index} className="flex items-center gap-2 mb-1">
+                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color || entry.stroke || entry.fill }} />
+                            <span className="text-zinc-300">{entry.name}:</span>
+                            <span className="font-mono font-bold text-white">
+                                {formattedValue}
+                                {entry.unit}
+                            </span>
+                        </div>
+                    );
+                })}
             </div>
         );
     }
@@ -214,10 +221,11 @@ export const MetricComparisonChart: React.FC<MetricChartProps> = ({
                             cursor={{ fill: '#27272a' }}
                             content={({ active, payload, label }) => {
                                 if (active && payload && payload.length) {
+                                    const value = typeof payload[0].value === 'number' ? payload[0].value : parseFloat(payload[0].value as any);
                                     return (
                                         <div className="bg-black border border-zinc-800 p-2 rounded text-xs text-white shadow-xl">
                                             <p className="font-bold mb-1">{label}</p>
-                                            <p>{Number(payload[0].value).toFixed(4)}{unit}</p>
+                                            <p>{!isNaN(value) ? value.toFixed(4) : payload[0].value}{unit}</p>
                                         </div>
                                     )
                                 }
@@ -241,7 +249,6 @@ export const ResidualChart: React.FC<ChartsProps> = ({ results, config }) => {
     const pointsToShow = daysToShow * 96;
     const startIndex = Math.max(0, results.processedData.length - pointsToShow);
     
-    // Calculate residuals (Predicted - Actual)
     const chartData = results.processedData.slice(startIndex).map((point, i) => {
         const absoluteIndex = startIndex + i;
         const bestModelPreds = results.modelResults[results.bestModel].predictions;
